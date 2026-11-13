@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>زرعة — تجربة الصوت</title>
+<style>
+  :root { --bg:#f6f1e4; --ink:#1b2a22; --green:#1f4d36; --green2:#2f6b4c; --mustard:#c8962b; --line:#d9d0b8; --card:#fffdf6; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family: "Segoe UI", Tahoma, "Noto Naskh Arabic", sans-serif; padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+  header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; border-bottom:1px solid var(--line); }
+  header b { font-size:22px; color:var(--green); }
+  main { max-width:640px; margin:0 auto; padding:20px 16px 60px; }
+  .warn { background:#fff3d6; border:1px solid var(--mustard); border-radius:10px; padding:10px 14px; margin-bottom:12px; font-size:15px; }
+  .stage { text-align:center; padding:12px 0 6px; }
+  #mic { width:168px; height:168px; border-radius:50%; border:0; background:var(--green); color:#fff; font-size:20px; font-weight:700; cursor:pointer; box-shadow:0 6px 0 #143424, 0 10px 24px rgba(31,77,54,.25); transition:transform .1s; }
+  #mic:active { transform:translateY(3px); }
+  #mic svg { width:54px; height:54px; display:block; margin:0 auto 6px; }
+  #mic[data-s="listening"] { background:var(--mustard); animation:pulse 1.2s infinite; }
+  #mic[data-s="speaking"] { background:var(--green2); }
+  #mic[data-s="thinking"] { background:#6b7a70; }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(200,150,43,.55)} 70%{box-shadow:0 0 0 28px rgba(200,150,43,0)} 100%{box-shadow:0 0 0 0 rgba(200,150,43,0)} }
+  #status { margin-top:14px; font-size:18px; color:var(--green); min-height:26px; }
+  #bot { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; margin:18px 0 8px; font-size:22px; line-height:1.7; min-height:64px; }
+  #me { color:#5b6a60; font-size:15px; min-height:22px; padding:0 6px; }
+  #chips { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0; }
+  .chip { background:var(--card); border:1px solid var(--green2); color:var(--green); border-radius:999px; padding:4px 12px; font-size:15px; }
+  details { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 14px; margin-top:12px; }
+  summary { cursor:pointer; font-weight:700; color:var(--green); }
+  .row { display:flex; gap:8px; margin:10px 0; flex-wrap:wrap; }
+  input, select { flex:1; min-width:120px; padding:10px; border:1px solid var(--line); border-radius:10px; font-size:16px; background:#fff; font-family:inherit; }
+  .btn { padding:10px 14px; border-radius:10px; border:1px solid var(--green); background:#fff; color:var(--green); font-size:16px; cursor:pointer; font-family:inherit; }
+  .btn.solid { background:var(--green); color:#fff; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:8px; }
+  h3 { margin:18px 0 6px; font-size:16px; }
+  #results { margin-top:22px; display:grid; gap:12px; }
+  .sc { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px; }
+  .sc h4 { margin:0 0 8px; color:var(--green); font-size:18px; }
+  .sc .tag { background:var(--mustard); color:#fff; border-radius:6px; font-size:13px; padding:2px 8px; margin-inline-start:8px; }
+  .crops { font-size:19px; font-weight:700; margin:6px 0; }
+  .sc p { margin:4px 0; font-size:15px; }
+  .note { font-size:13px; color:#6b6b5a; margin-top:14px; }
+</style>
+</head>
+<body>
+<header><b>زرعة</b><span style="color:#6b6b5a;font-size:14px">تجربة الصوت (صوت المتصفح)</span></header>
+<main>
+  <div id="warns"></div>
+  <div class="stage">
+    <button id="mic" data-s="idle" aria-label="ميكروفون">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+      <span id="micLabel">اضغط وابدأ</span>
+    </button>
+    <div id="status"></div>
+  </div>
+  <div id="bot"></div>
+  <div id="me"></div>
+  <div id="chips"></div>
+
+  <details id="fallback">
+    <summary>مش قادر تتكلم؟ اختار بالضغط</summary>
+    <h3>اسمك</h3>
+    <div class="row"><input id="nameIn" placeholder="اكتب اسمك"><button class="btn solid" id="nameBtn">تمام</button></div>
+    <h3>المحافظة</h3>
+    <div class="row"><select id="govSel"></select><button class="btn solid" id="govBtn">تمام</button></div>
+    <h3>المحصول الحالي</h3>
+    <div class="grid" id="cropGrid"></div>
+    <h3>هدفك</h3>
+    <div class="grid" id="goalGrid"></div>
+  </details>
+
+  <div id="results"></div>
+  <p class="note">النتائج مبدئية لدعم القرار، ومحتاجة مراجعة مهندس زراعي.</p>
+</main>
+
+<script type="module">
+import { BrowserVoiceAgent } from "./browserVoice.js";
+
+const $ = (id) => document.getElementById(id);
+const api = new URLSearchParams(location.search).get("api") || "";
+const STATUS = { idle: "اضغط على الميكروفون", speaking: "بتكلم…", listening: "بسمعك… اتكلم", thinking: "بفكر…", done: "خلصنا ✓" };
+const LABEL = { idle: "اتكلم", speaking: "اتكلم", listening: "بسمعك", thinking: "ثانية…", done: "ابدأ من الأول" };
+const PROFILE_LABELS = { name: "الاسم", location: "المحافظة", current_crop: "المحصول", goal: "الهدف" };
+const GOALS = { water_saving: "توفير المياه", soil_health: "تحسين التربة", yield: "تحسين المحصول", climate_resilience: "مواجهة المناخ" };
+let crops = [], govs = [];
+
+const agent = new BrowserVoiceAgent({
+  apiUrl: api,
+  onState(s) {
+    $("mic").dataset.s = s;
+    $("status").textContent = STATUS[s];
+    $("micLabel").textContent = agent.sessionId || s !== "idle" ? LABEL[s] : "اضغط وابدأ";
+  },
+  onMessage(m) { if (m.role === "assistant") $("bot").textContent = m.text; else $("me").textContent = "أنت: " + m.text; },
+  onProfile(p) {
+    const chips = $("chips"); chips.textContent = "";
+    for (const k of ["name", "location", "current_crop", "goal"]) {
+      if (!p[k]) continue;
+      let v = p[k];
+      if (k === "location") v = p.location_ar;
+      if (k === "current_crop") v = (crops.find((c) => c.id === v) || {}).name_ar || v;
+      if (k === "goal") v = GOALS[v] || v;
+      const el = document.createElement("span"); el.className = "chip"; el.textContent = `${PROFILE_LABELS[k]}: ${v}`; chips.append(el);
+    }
+  },
+  onResult(out) { render(out.analysis); },
+  onError(msg) { const d = document.createElement("div"); d.className = "warn"; d.textContent = msg; $("warns").prepend(d); setTimeout(() => d.remove(), 9000); },
+});
+
+function warn(t) { const d = document.createElement("div"); d.className = "warn"; d.textContent = t; $("warns").append(d); }
+if (!agent.canListen) { warn("المتصفح ده مبيدعمش التعرف على الصوت. افتح الصفحة في Chrome، أو اختار بالضغط من تحت."); $("fallback").open = true; }
+if (agent.canSpeak) {
+  const check = () => { if (!agent.hasArabicVoice && !$("warns").dataset.v) { $("warns").dataset.v = 1; warn("جهازك مفيهوش صوت عربي للنطق، هتشوف الكلام مكتوب بس."); } };
+  speechSynthesis.addEventListener("voiceschanged", check); setTimeout(check, 1500);
+}
+
+$("mic").onclick = () => {
+  const s = agent.state;
+  if (!agent.sessionId || s === "done") return agent.start();
+  if (s === "listening") return agent.stop();
+  if (s === "thinking") return;
+  agent.stop(); agent.listen();
+};
+
+function render(a) {
+  const box = $("results"); box.textContent = "";
+  const ord = { A: "الاختيار الأول", B: "الاختيار التاني", C: "الاختيار التالت" };
+  for (const s of a.scenarios) {
+    const d = document.createElement("div"); d.className = "sc";
+    const h = document.createElement("h4"); h.textContent = ord[s.scenario_id];
+    const tag = document.createElement("span"); tag.className = "tag"; tag.textContent = s.scenario_id === "A" ? "نظامك الحالي" : s.focus; h.append(tag);
+    const c = document.createElement("div"); c.className = "crops"; c.textContent = s.crops.map((x) => x.name_ar).join("  ←  ");
+    const b = document.createElement("p"); b.textContent = "✔ " + s.benefits[0];
+    const r = document.createElement("p"); r.textContent = "⚠ " + s.risks[0];
+    d.append(h, c, b, r); box.append(d);
+  }
+  box.scrollIntoView({ behavior: "smooth" });
+}
+
+// بدائل الضغط
+const send = (t) => agent.sendText(t);
+$("nameBtn").onclick = () => { const v = $("nameIn").value.trim(); if (v) send("اسمي " + v); };
+$("govBtn").onclick = () => send($("govSel").value);
+const mk = (parent, label, fn) => { const b = document.createElement("button"); b.className = "btn"; b.textContent = label; b.onclick = fn; parent.append(b); };
+for (const [, label] of Object.entries(GOALS)) mk($("goalGrid"), label, () => send(label));
+
+Promise.all([fetch(api + "/api/crops").then((r) => r.json()), fetch(api + "/api/governorates").then((r) => r.json())]).then(([c, g]) => {
+  crops = c; govs = g;
+  for (const x of crops) mk($("cropGrid"), x.name_ar, () => send(x.name_ar));
+  for (const x of govs) { const o = document.createElement("option"); o.value = x.name_ar; o.textContent = x.name_ar; $("govSel").append(o); }
+}).catch(() => warn("مقدرتش أوصل للسيرفر."));
+$("status").textContent = STATUS.idle;
+</script>
+</body>
+</html>

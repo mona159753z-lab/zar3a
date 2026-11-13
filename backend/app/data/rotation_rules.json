@@ -1,0 +1,7 @@
+{
+  "_warning": "قواعد مبدئية تحتاج مراجعة مهندس زراعي.",
+  "hard_no_consecutive_family": ["Solanaceae", "Amaranthaceae", "Amaryllidaceae", "Malvaceae"],
+  "soft_penalty_consecutive_family": {"Poaceae": 0.15, "Fabaceae": 0.1},
+  "default_crop_by_season": {"winter": "wheat", "summer": "maize"},
+  "needs_expert_review": true
+}

@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #2d6a2f;
+  --color-primary-light: #6aa84f;
+  --color-cream: #f7f3e8;
+}
+
+body {
+  font-family: 'Cairo', sans-serif;
+  background: #f7f3e8;
+}

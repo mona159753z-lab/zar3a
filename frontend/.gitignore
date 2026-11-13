@@ -1,0 +1,29 @@
+# Python & Virtual Environment
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+env/
+.env
+*.db
+*.sqlite3
+
+# AI Models (Very Large Files)
+*.pt
+*.pth
+*.onnx
+*.pkl
+backend/plant_disease_api/models/*
+!backend/plant_disease_api/models/class_names.json
+
+# Node.js / React
+node_modules/
+dist/
+build/
+.vite/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
