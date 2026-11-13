@@ -1,12 +1,12 @@
 FROM python:3.11-slim
 WORKDIR /app
 
-# نسخ ملف المتطلبات من مساره الصحيح داخل فولدر backend
-COPY backend/requirements.txt .
+# نسخ ملف المتطلبات من نفس المجلد
+COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-# نسخ باقي محتويات فولدر backend إلى مجلد العمل
-COPY backend/ .
+# نسخ باقي الملفات من نفس المجلد
+COPY . .
 
-CMD uvicorn app.main:app --host 0.0.0.0 --port $PORT
+CMD uvicorn main:app --host 0.0.0.0 --port $PORT
