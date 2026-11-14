@@ -209,3 +209,15 @@ def test_hf_tts_falls_back_to_edge_when_server_down(monkeypatch):
     monkeypatch.setattr(vs, "synthesize_edge", fake_edge)
     audio, err = asyncio.run(vs.speak("أهلا"))
     assert audio == b"EDGE" and err is None
+
+
+def test_analysis_uses_soil_estimate(client):
+    j = client.post("/api/quick-analysis", json={"region": "الشرقية", "current_crop": "قمح", "goal": "soil_health"}).json()
+    ds = j["data_status"]
+    assert ds["soil_test_available"] is False and ds["soil_estimate"]["point"] == "sharqia"
+    assert any("SoilGrids" in x for x in j["scenarios"][0]["evidence"] + j["scenarios"][0]["limitations"])
+
+
+def test_user_soil_overrides_estimate(client):
+    j = client.post("/api/quick-analysis", json={"region": "الشرقية", "current_crop": "قمح", "soil": {"ph": 7.0}}).json()
+    assert j["data_status"]["soil_estimate"] is None and j["data_status"]["soil_test_available"] is True

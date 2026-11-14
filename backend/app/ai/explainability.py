@@ -48,6 +48,15 @@ def explain(sc: dict, base: dict, profile: dict, climate: dict, seasons: list[st
     risks.append("التوصية تحتاج مراجعة مهندس زراعي قبل التنفيذ.")
 
     evidence = []
+    se = profile.get("soil_estimate")
+    if se:
+        evidence.append(f"تقدير التربة في منطقتك: قوام {se['texture_ar']}، حموضة (pH) حوالي {se['ph']} ({se['source']}).")
+        if se["ph"] >= 8.0:
+            risks.append("التربة قلوية نسبيًا حسب التقدير، وده ممكن يقلل إتاحة بعض العناصر الصغرى (زي الحديد والزنك). يفضل تحليل تربة.")
+        if se["clay_pct"] >= 35:
+            risks.append("التربة طينية ثقيلة حسب التقدير، فالصرف والتهوية محتاجين اهتمام.")
+        elif se["sand_pct"] >= 50:
+            risks.append("التربة رملية نسبيًا حسب التقدير، فبتفقد المياه والأسمدة أسرع.")
     for s in dict.fromkeys(seasons):
         months = next(c["growing_months"] for c in sc["seq"] if c["season"] == s) if any(c["season"] == s for c in sc["seq"]) else []
         t = mean_temp(climate, months) if months else None
@@ -63,11 +72,11 @@ def explain(sc: dict, base: dict, profile: dict, climate: dict, seasons: list[st
     limitations = ["قيم احتياجات المحاصيل مبدئية وتحتاج مراجعة مرجع زراعي.",
                    "بيانات المناخ متوسطات تاريخية، مش توقع للموسم الجاي."]
     if not profile.get("soil"):
-        limitations.append("ما قدمتش تحليل للتربة.")
+        limitations.append("بيانات التربة تقدير عام للمنطقة من SoilGrids، مش تحليل لأرضك." if se else "ما قدمتش تحليل للتربة.")
     if not climate["available"]:
         limitations.append(climate["note"])
 
-    return {"benefits": benefits, "risks": [r for r in risks if r], "evidence": evidence[:6], "limitations": limitations,
+    return {"benefits": benefits, "risks": [r for r in risks if r], "evidence": evidence[:7], "limitations": limitations,
             "water_change_pct": water_pct}
 
 

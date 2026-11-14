@@ -4,12 +4,16 @@ from datetime import datetime, timezone
 from ..ai import explainability as ex
 from ..ai import rotation_generator as rg
 from . import nasa_service
+from . import soil_service
 from . import knowledge as kb
 
 
 async def run_analysis(profile: dict) -> dict:
     """profile: latitude, longitude, current_crop(id|None), previous_crops, goal, water_availability, soil, ..."""
     climate = await nasa_service.get_climate(profile["latitude"], profile["longitude"])
+    # لو مفيش تحليل تربة من المزارع نستخدم تقدير SoilGrids للمنطقة (لو فيه نقطة قريبة)
+    soil_est = None if profile.get("soil") else soil_service.estimate(profile["latitude"], profile["longitude"])
+    profile = {**profile, "soil_estimate": soil_est}
     gen = rg.generate(profile, climate)
     base = gen["scenarios"][0]
     scenarios = []
@@ -50,6 +54,8 @@ async def run_analysis(profile: dict) -> dict:
         notes.append("خففنا فلتر المياه المنخفضة لعدم وجود بدائل.")
     if climate["note"]:
         notes.append(climate["note"])
+    if soil_est:
+        notes.append(f"بيانات التربة تقدير من SoilGrids لأقرب نقطة (حوالي {soil_est['distance_km']} كم)، مش تحليل لأرضك.")
 
     result = {
         "analysis_id": uuid.uuid4().hex,
@@ -59,6 +65,7 @@ async def run_analysis(profile: dict) -> dict:
             "nasa_data_available": climate["available"],
             "nasa_source": climate["source"],
             "soil_test_available": bool(profile.get("soil")),
+            "soil_estimate": soil_est,
             "missing_information": missing,
             "notes": notes,
         },
