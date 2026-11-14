@@ -65,7 +65,7 @@ function StrategyCard({ s, onSelect }) {
       <h2 className="mt-2 text-center text-xl font-extrabold text-gray-900">{s.title}</h2>
       <p className="mt-2 text-center text-sm text-gray-600">{s.desc}</p>
 
-      <div className="mt-5 grid grid-cols-2 items-center gap-4">
+      <div className="mt-5 grid grid-cols-1 items-center gap-4 sm:grid-cols-2">
         <ul className="space-y-3">
           {s.stats?.map(({ icon: Icon, label, value, color }) => (
             <li key={label} className="flex items-start gap-2">
@@ -77,7 +77,7 @@ function StrategyCard({ s, onSelect }) {
             </li>
           ))}
         </ul>
-        <img src={s.image} alt={s.title} className="aspect-square w-full rounded-2xl object-cover shadow-md" />
+        <img src={s.image} alt={s.title} className="aspect-video w-full rounded-2xl object-cover shadow-md sm:aspect-square" />
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-3">
@@ -108,7 +108,7 @@ function StrategyCard({ s, onSelect }) {
         </p>
       </div>
 
-      <button onClick={() => onSelect(s)} className="mt-auto flex items-center justify-center gap-2 self-center rounded-full bg-primary px-14 py-3 text-lg font-bold text-white shadow-lg transition hover:scale-105 hover:bg-primary/90" style={{ marginTop: 20 }}>
+      <button onClick={() => onSelect(s)} className="mt-auto flex items-center justify-center gap-2 self-center rounded-full bg-primary px-8 py-3 text-base font-bold sm:px-14 sm:text-lg text-white shadow-lg transition hover:scale-105 hover:bg-primary/90" style={{ marginTop: 20 }}>
         لنزرع معا <Sprout className="h-5 w-5" />
       </button>
     </article>
@@ -133,10 +133,10 @@ export default function CropCycles() {
     <main className="mx-auto max-w-7xl space-y-10 px-4 pb-16 pt-28 md:px-8">
       <section className="relative overflow-hidden rounded-3xl bg-cover bg-center" style={{ backgroundImage: "url('/images/strategy.jpg')" }}>
         <div className="absolute inset-0 bg-linear-to-l from-[#1b6b2a]/95 via-[#1b6b2a]/60 to-transparent" />
-        <div className="relative flex items-center gap-5 px-8 py-10 text-white md:py-12">
-          <Repeat className="h-16 w-16 shrink-0" strokeWidth={1.4} />
+        <div className="relative flex items-center gap-5 px-5 py-8 text-white sm:px-8 md:py-12">
+          <Repeat className="h-12 w-12 shrink-0 sm:h-16 sm:w-16" strokeWidth={1.4} />
           <div>
-            <h1 className="text-4xl font-extrabold md:text-5xl">الدورات الزراعية</h1>
+            <h1 className="text-3xl font-extrabold sm:text-4xl md:text-5xl">الدورات الزراعية</h1>
             <p className="mt-2 text-lg text-white/90">
               {analysisData ? `التوصيات المخصصة لأرضك يا ${analysisData.farmer_name || 'مزارعنا'}` : 'اختر الاستراتيجية المناسبة لمزرعتك'}
             </p>

@@ -9,4 +9,11 @@
 body {
   font-family: 'Cairo', sans-serif;
   background: #f7f3e8;
+  overflow-x: hidden;
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
 }

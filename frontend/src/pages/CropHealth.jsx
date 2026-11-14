@@ -154,7 +154,7 @@ function ResultCard({ loading, data, imagePreview }) {
 
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h3 className="text-3xl font-extrabold text-gray-900">{disease_info.name_ar}</h3>
+              <h3 className="text-2xl font-extrabold text-gray-900 sm:text-3xl">{disease_info.name_ar}</h3>
               <p className="text-lg text-gray-600" dir="ltr">({disease_info.name})</p>
             </div>
             <img src={imagePreview} alt="Plant" className="h-24 w-24 shrink-0 rounded-full border-4 border-primary object-cover" />
@@ -224,10 +224,10 @@ export default function CropHealth() {
     <main className="mx-auto max-w-7xl space-y-6 px-4 pb-16 pt-28 md:px-8">
       <section className="relative overflow-hidden rounded-3xl bg-cover bg-center" style={{ backgroundImage: "url('/images/crop-banner.jpg')" }}>
         <div className="absolute inset-0 bg-linear-to-l from-[#1b4d24] via-[#1b4d24]/90 to-transparent" />
-        <div className="relative flex items-center justify-start gap-4 px-8 py-10 text-white md:py-12">
-          <ScanSearch className="h-16 w-16 shrink-0" strokeWidth={1.5} />
+        <div className="relative flex items-center justify-start gap-4 px-5 py-8 text-white sm:px-8 md:py-12">
+          <ScanSearch className="h-12 w-12 shrink-0 sm:h-16 sm:w-16" strokeWidth={1.5} />
           <div>
-            <h1 className="text-4xl font-extrabold md:text-5xl">صحة المحاصيل</h1>
+            <h1 className="text-3xl font-extrabold sm:text-4xl md:text-5xl">صحة المحاصيل</h1>
             <p className="mt-2 text-lg text-white/90">تحليل ذكي لنباتتك باستخدام الذكاء الاصطناعي</p>
           </div>
         </div>

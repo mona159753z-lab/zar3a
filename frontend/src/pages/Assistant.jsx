@@ -198,7 +198,7 @@ export default function Assistant() {
     <main className="mx-auto max-w-7xl px-4 pb-12 pt-28 md:px-8">
       <audio ref={audioRef} className="hidden" />
       <div className="grid gap-6 lg:grid-cols-5">
-        <aside className="relative flex flex-col justify-between overflow-hidden rounded-3xl bg-primary-light/20 bg-cover bg-center lg:col-span-2" style={{ backgroundImage: "url('/images/assistant-bg.jpg')" }}>
+        <aside className="relative flex flex-col justify-between overflow-hidden rounded-3xl bg-primary-light/20 bg-cover bg-center order-last lg:order-none lg:col-span-2" style={{ backgroundImage: "url('/images/assistant-bg.jpg')" }}>
           <div className="relative z-10 p-5">
             <div className="mr-auto max-w-[75%] rounded-3xl rounded-tr-sm bg-white p-5 shadow-lg">
               <h2 className="flex items-center gap-2 text-2xl font-extrabold text-primary">
@@ -207,7 +207,7 @@ export default function Assistant() {
               <p className="mt-2 text-sm text-gray-600">أنا هنا لمساعدتك في أي استفسار عن الزراعة 😊</p>
             </div>
           </div>
-          <img src="/images/bot.png" alt="مساعد زرعة" className="relative z-0 mx-auto -mt-6 h-72 w-auto object-contain drop-shadow-xl" />
+          <img src="/images/bot.png" alt="مساعد زرعة" className="relative z-0 mx-auto -mt-6 h-48 w-auto sm:h-72 object-contain drop-shadow-xl" />
           <div className="relative z-10 mx-5 mb-4 rounded-3xl bg-cream/95 p-5 shadow-lg backdrop-blur">
             <h3 className="mb-3 flex items-center gap-2 font-bold text-gray-900">
               <Lightbulb className="h-5 w-5 text-amber-500" /> ماذا يمكنك أن تسأل؟
@@ -231,7 +231,7 @@ export default function Assistant() {
             <h1 className="text-2xl font-extrabold">مساعد زرعة</h1>
           </header>
 
-          <div className="flex-1 space-y-5 overflow-y-auto bg-cream/60 p-6" style={{ maxHeight: 460, minHeight: 300 }}>
+          <div className="flex-1 space-y-5 overflow-y-auto bg-cream/60 p-4 sm:p-6" style={{ maxHeight: 460, minHeight: 300 }}>
             {messages.map((m) => (
               <div key={m.id}><Bubble m={m} /></div>
             ))}
