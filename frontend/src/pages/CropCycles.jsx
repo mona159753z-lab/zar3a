@@ -3,6 +3,7 @@ import {
   Sprout, Droplet, Mountain, Sun, AlertTriangle, ThumbsUp,
   CheckCircle2, Lightbulb, Repeat,
 } from 'lucide-react'
+import { buildStrategies } from '../utils/strategies'
 
 /* ====== البيانات الافتراضية (Fallback) ====== */
 const defaultStrategies = [
@@ -55,6 +56,13 @@ const defaultStrategies = [
     reason: 'لتحسين جودة التربة وضمان استدامة الإنتاج على المدى الطويل.',
   },
 ]
+
+const themesByKey = {
+  A: defaultStrategies[0].theme,
+  B: defaultStrategies[1].theme,
+  C: defaultStrategies[2].theme,
+}
+const strategyIcons = { crop: Sprout, water: Droplet, soil: Mountain, sun: Sun }
 
 function StrategyCard({ s, onSelect }) {
   return (
@@ -123,7 +131,8 @@ export default function CropCycles() {
   const analysisData = location.state?.analysis
 
   // لو الباك إند رجع استراتيجيات جاهزة في التحليل، هنستخدمها. غير كده هنستخدم الافتراضية.
-  const strategiesToRender = analysisData?.strategies || defaultStrategies
+  const strategiesToRender = analysisData?.strategies || buildStrategies(analysisData, strategyIcons, themesByKey) || defaultStrategies
+  const notes = analysisData?.data_status?.notes || []
 
   const handleSelect = (s) => {
     navigate('/my-farm')
@@ -150,6 +159,13 @@ export default function CropCycles() {
           <StrategyCard key={s.key || s.id} s={s} onSelect={handleSelect} />
         ))}
       </section>
+
+      {analysisData?.scenarios && (
+        <section className="rounded-2xl bg-white/80 p-5 text-sm text-gray-600 shadow-sm">
+          {notes.map((n) => <p key={n}>• {n}</p>)}
+          {analysisData.disclaimer && <p className="mt-2 font-bold text-gray-800">{analysisData.disclaimer}</p>}
+        </section>
+      )}
     </main>
   )
 }
