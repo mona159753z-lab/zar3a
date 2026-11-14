@@ -1,80 +1,262 @@
-# ZAR3A — زرعة
+<div align="center">
 
-```
-zar3a/
-├── backend/    FastAPI (جاهز)
-├── frontend/   حط React هنا
-├── docs/       الوثيقة والعرض
-└── render.yaml نشر الباك على reliway
+# 🌱 ZAR3A | زرعة
+
+### A voice-first AI farming assistant for Egyptian farmers
+**Talk to it in Egyptian Arabic. It reads NASA climate data for your land and tells you which crop rotation to plant next, and why.**
+
+`NASA POWER` · `Voice in Egyptian Arabic` · `Explainable recommendations` · `Plant disease diagnosis from a photo`
+
+*Built for the NASA Space Apps Challenge*
+
+</div>
+
+---
+
+## نبذة بالعربي
+
+**زرعة** مساعد زراعي صوتي للمزارع المصري. المزارع بيتكلم بالعامية ("اسمي فرحة، أرضي في المنوفية، بزرع قمح، عايز أوفر مياه")، وزرعة بترد عليه بصوت مصري وتسأله سؤال واحد في المرة، وبعدين تسحب بيانات مناخ أرضه من **NASA POWER** وتديله **٣ دورات زراعية** مقارنة بنظامه الحالي، مع شرح بسيط لكل واحدة: الفايدة، والمخاطر، والدليل، وحدود التقدير. وكمان تقدر تصوّر ورقة النبات وترفعها، وزرعة تقوله المرض وطريقة العلاج والوقاية.
+
+مفيش كتابة ولا قراءة مطلوبة من المزارع. ده مقصود، لأن كتير من المزارعين مبيقروش ولا بيكتبوا.
+
+---
+
+## The problem
+
+Egyptian smallholder farmers decide what to plant next from habit, neighbours' advice, and last season's price. That leads to three costly mistakes:
+
+- **Wasted irrigation water** in a country where water is the scarcest input.
+- **Exhausted soil** from planting the same crop or the same plant family back to back.
+- **Late disease detection**, when a crop is already damaged.
+
+Existing agri-tech tools assume the user can read, type, and navigate dashboards. Many farmers can't, or won't.
+
+## The solution
+
+ZAR3A turns a **two-minute spoken conversation** into a **data-backed crop plan**:
+
+1. The farmer talks. ZAR3A listens, understands Egyptian dialect, and asks one short question at a time.
+2. ZAR3A pulls **NASA POWER** climate data for the farmer's governorate.
+3. A rotation engine builds and scores candidate 3-season plans, then returns the current system plus two better alternatives.
+4. ZAR3A **speaks the result back** and explains it in plain Arabic.
+5. For plant problems, the farmer uploads a photo and gets a diagnosis with treatment and prevention steps.
+
+---
+
+## ✨ Key features
+
+### 🎙️ 1. A real voice conversation, not a form
+- **Speaks and listens in Egyptian Arabic.** The farmer taps one big mic button and talks.
+- **Guided, one-question-at-a-time dialogue** collecting four things: name, governorate, current crop, goal.
+- **Free-form answers work too.** "اسمي فرحة وأرضي في الغربية وزارعة ذرة وعايزة أوفر مياه" fills all four slots in one sentence.
+- **Understands corrections.** "لا مش الجيزة، المنوفية" updates the answer instead of derailing the chat.
+- **Confirms before analysing.** ZAR3A repeats what it understood ("أرضك في المنوفية وبتزرع قمح، صح؟") so a misheard word never produces a wrong plan.
+- **Forgiving to speech-recognition errors.** Fuzzy matching maps "منوفيا" to المنوفية and "قمحه" to wheat.
+- **Never blocks the farmer.** Every voice step has a tap fallback (buttons or typing) for noisy fields and poor connections.
+
+### 🧠 2. Resilient, layered intelligence
+Voice understanding degrades gracefully instead of failing:
+
+| Layer | What it does |
+|---|---|
+| **LLM (any OpenAI-compatible provider)** | Natural dialogue in Egyptian dialect, slot extraction, tone. Supports a **fallback model** if the primary hits a rate limit. |
+| **Output guard** | Every LLM reply is checked against the dialogue state, then regenerated or replaced by a safe scripted reply if it drifts. |
+| **Local NLU (no API, no key)** | Fuzzy governorate/crop matching plus a small **Naive Bayes goal classifier** trained in under a second from hand-written Egyptian-dialect examples. It understands "الميه مش بتوصل لآخر الأرض" as *water saving* even without the keyword. |
+
+If the internet or the LLM goes down, the conversation **keeps working** on the local layer.
+
+### 🛰️ 3. Powered by NASA data
+- Pulls **monthly climatology** from **NASA POWER** (community `AG`) for the farmer's location:
+  - `T2M` air temperature
+  - `PRECTOTCORR` precipitation
+  - `ALLSKY_SFC_SW_DWN` solar radiation
+- Covers all **27 Egyptian governorates**.
+- Results are **cached per 0.5° grid cell**, so repeat queries are instant and demos survive bad Wi-Fi.
+- **Honest offline mode.** If NASA is unreachable, ZAR3A uses a clearly labelled approximate Nile-Delta estimate and tells the user the data wasn't live (`data_status.nasa_data_available = false`). It never silently pretends.
+
+### 🔄 4. Three crop-rotation scenarios, scored and compared
+For every analysis ZAR3A returns three plans over the next **three seasons**:
+
+| Scenario | Meaning |
+|---|---|
+| **A: Current system** | The baseline the farmer already follows. Used as the comparison point. |
+| **B: Optimised for the farmer's goal** | Best plan for water saving, soil health, or climate fit, depending on what they asked for. |
+| **C: A different trade-off** | A deliberately *different* plan (it must differ from B in at least two seasons) optimised for the next objective, so the farmer sees a real choice. |
+
+How the engine works:
+- Enumerates every valid season-by-season combination from a **13-crop knowledge base** (wheat, berseem, faba bean, onion, sugar beet, potato, maize, rice, cotton, sesame, peanut, sorghum, tomato).
+- **Hard agronomic rules:** never the same crop twice in a plan, and no back-to-back crops from the same plant family for sensitive families (Solanaceae, Amaranthaceae, Amaryllidaceae, Malvaceae).
+- **Soft penalties** for cereal-after-cereal and legume-after-legume.
+- **Water filter:** if the farmer reports low water availability, high-water crops are excluded.
+- Scores each plan on three indexes: **estimated water use**, **climate suitability** (crop's optimal temperature range vs NASA temperature for its growing months), and **soil health** (nitrogen-fixing legumes and family diversity).
+- Reports the change versus the current system, for example *"estimated water use about 18% lower than your current rotation."*
+
+### 🔍 5. Explainable, not a black box
+Every scenario ships with four plain-Arabic sections:
+- **Benefits**: what improves compared with the current system.
+- **Risks**: for example "this crop needs a lot of water", or a rotation-rule violation in the current plan.
+- **Evidence**: the actual NASA numbers behind the claim (mean season temperature, annual rainfall) and each crop's temperature range.
+- **Limitations**: what we assumed and what's missing.
+
+### 🛡️ 6. Built to be trusted
+- **No invented numbers.** The indexes are *relative comparisons between alternatives*, not yield forecasts. ZAR3A does not predict production without real yield data.
+- **Assumptions are flagged.** If a farmer didn't say what they grew last season, the plan marks that slot as assumed.
+- Crop parameters are flagged `needs_expert_review`, and every result carries a disclaimer to consult an agronomist.
+- It reports what's missing (`soil_nutrients`, `crop_history`, `goal`) rather than guessing.
+
+### 🌿 7. Plant disease diagnosis from a photo
+- Upload a **photo or video** of a plant (the interface has separate image and video tabs).
+- ZAR3A returns:
+  - the **disease name** in Arabic and English (for example *اللفحة المبكرة / Early Blight*),
+  - a **confidence score**,
+  - a short **description** of the disease,
+  - the **detected plant type**,
+  - **treatment methods** and **prevention guidelines**.
+
+### 🔊 8. Voice that sounds Egyptian, with four fallbacks
+The speaking side picks the best available engine and falls through automatically:
+
+1. **Self-hosted Egyptian TTS model** from Hugging Face (optional, own server on port 8001)
+2. **OpenAI TTS** (if a key is configured)
+3. **Microsoft Edge neural voice** `ar-EG-SalmaNeural` (free, no key, Egyptian accent)
+4. **Browser `speechSynthesis`** as the last resort, so the farmer always hears something
+
+Speech recognition runs in the browser (Web Speech API, Chrome) or on the server (OpenAI transcription) through `POST /api/voice/turn`.
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+flowchart LR
+    F([👩‍🌾 Farmer]) -- speaks / taps --> UI[React + Vite UI]
+    UI -- text or audio --> API[FastAPI backend]
+    API --> CONV[Conversation engine<br/>LLM + local NLU]
+    CONV --> KB[(Knowledge base<br/>13 crops · 27 governorates<br/>rotation rules)]
+    API --> NASA[NASA POWER API<br/>T2M · rain · solar]
+    NASA -. cached by 0.5° cell .-> CACHE[(Local cache)]
+    API --> ENGINE[Rotation engine<br/>generate → filter → score → pick A/B/C]
+    ENGINE --> EXPL[Explainability<br/>benefits · risks · evidence · limits]
+    API --> DB[(SQLite)]
+    API --> TTS[TTS chain<br/>HF → OpenAI → Edge → Browser]
+    TTS --> UI
 ```
 
-## تشغيل الباك (محلي)
+### Tech stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React, Vite, Web Speech API |
+| Backend | Python 3.12, FastAPI, Pydantic, httpx |
+| Data | SQLAlchemy + SQLite, JSON knowledge base |
+| Climate data | NASA POWER API |
+| Language AI | Any OpenAI-compatible LLM (tested with Groq) + local Naive Bayes NLU |
+| Voice | Edge neural TTS, OpenAI TTS/STT, Hugging Face Egyptian TTS, browser speech |
+| Deploy | Docker, Render (`render.yaml`), Vercel |
+| Tests | pytest |
+
+---
+
+## 🚀 Quick start
+
+### Backend
 
 ```bash
 cd backend
-python -m venv .venv && source .venv/bin/activate      # ويندوز: .venv\Scripts\activate
-pip install -r requirements-dev.txt
-cp .env.example .env                                   # حط OPENAI_API_KEY
+python -m venv .venv
+source .venv/bin/activate          # Windows PowerShell: .venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+cp .env.example .env               # then fill in the keys you have
 uvicorn app.main:app --reload
 ```
 
-- التوثيق التفاعلي: http://localhost:8000/docs
-- الاختبارات: `python -m pytest -q` (١٤ اختبار، من غير إنترنت ولا مفاتيح)
+- API docs (Swagger): `http://localhost:8000/docs`
+- Health check: `http://localhost:8000/health`
+- **Voice demo page:** `http://localhost:8000/demo/`
 
-## الصوت من غير API (صوت المتصفح) ← الافتراضي لو مفيش مفتاح
+> **No API key? It still works.** Without keys ZAR3A runs on browser voice, free Edge TTS, and the local NLU.
 
-من غير `OPENAI_API_KEY` الباك بيشتغل تلقائيًا بوضع المتصفح (أو ثبّتيه بـ `VOICE_MODE=browser` في `.env`):
+### Frontend
 
-- النطق والاستماع بيتعملوا في المتصفح (Web Speech API)، والباك بيستقبل النص بس ويفهمه بقواعد (من غير LLM).
-- **جربيه فورًا:** شغلي الباك وافتحي **http://localhost:8000/demo/** في **Chrome**، واضغطي الميكروفون.
-- لو الباك على Render، نفس الصفحة على `https://اسم-الخدمة.onrender.com/demo/` (الميكروفون محتاج HTTPS أو localhost).
-- الواجهة بتستخدم `frontend/src/voice/browserVoice.js` (فيه كلاس `BrowserVoiceAgent`) و`useBrowserVoice.js` كـ hook لـ React. نفس الملف موجود في `backend/app/static/` للصفحة التجريبية.
-- الأسئلة: الاسم ← المحافظة ← المحصول ← الهدف. المزارع ممكن يقول كل حاجة في جملة واحدة. وفيه أزرار بديلة لو الصوت فشل.
-
-**حدود الوضع ده:** الاستماع شغال كويس في Chrome (كمبيوتر وأندرويد) وبيحتاج إنترنت، وضعيف على iPhone/Safari وFirefox. دقة العامية المصرية متوسطة. جودة صوت النطق بتعتمد على الجهاز؛ لو مفيهوش صوت عربي هيظهر الكلام مكتوب بس. ولأن الفهم بالقواعد، المحاصيل والمحافظات لازم تكون من القوائم اللي في `data/`.
-
-## الحوار الصوتي بالـ API (STT → LLM → TTS) — اختياري
-
-الدور الواحد = تسجيل المزارع → نص → LLM يستخرج المعلومة ويرد → رد صوتي. الأسئلة بالترتيب: الاسم ← المحافظة ← المحصول ← الهدف.
-
-| الخطوة | Endpoint |
-|---|---|
-| بداية + ترحيب صوتي | `POST /api/voice/start` |
-| دور بالصوت (multipart: `audio`, `session_id`) | `POST /api/voice/turn` |
-| دور بالنص (بديل لو المايك فشل) | `POST /api/voice/text-turn` `{session_id, text}` |
-| نطق أي نص | `POST /api/voice/tts` `{text}` |
-| لما `done=true`: تحليل كامل (+ `?speak=true` لصوت الملخص) | `POST /api/voice/session/{id}/analyze` |
-
-كل رد فيه `reply_text` و`audio_base64` (mp3) و`profile` و`missing` و`done`. لو `audio_base64` فاضي (فشل TTS) استخدموا `speechSynthesis` في المتصفح على `reply_text`.
-
-مثال للواجهة (JS):
-
-```js
-const API = import.meta.env.VITE_API_URL;
-let sid;
-async function start() {
-  const r = await (await fetch(`${API}/api/voice/start`, { method: "POST" })).json();
-  sid = r.session_id; play(r);                       // لازم تتنده من ضغطة زرار
-}
-async function sendRecording(blob) {                 // blob من MediaRecorder
-  const fd = new FormData(); fd.append("audio", blob, "a.webm"); fd.append("session_id", sid);
-  const r = await (await fetch(`${API}/api/voice/turn`, { method: "POST", body: fd })).json();
-  play(r);
-  if (r.done) { const out = await (await fetch(`${API}/api/voice/session/${sid}/analyze?speak=true`, { method: "POST" })).json(); /* out.analysis, out.speech */ }
-}
-const play = (r) => r.audio_base64 ? new Audio("data:audio/mpeg;base64," + r.audio_base64).play() : speechSynthesis.speak(new SpeechSynthesisUtterance(r.reply_text));
+```bash
+cd frontend
+npm install
+echo "VITE_API_URL=http://localhost:8000" > .env
+npm run dev                        # http://localhost:5173
 ```
 
-## باقي الـ API
+> Voice input needs **Chrome (desktop or Android)** and **HTTPS** in production. iPhone/Safari speech recognition is limited, so use the tap fallback there.
 
-`GET /health` · `GET /api/crops` · `GET /api/governorates` · `POST /api/fields` · `POST /api/fields/{id}/crop-history` · `POST /api/fields/{id}/soil-data` · `GET /api/environment/{field_id}` · `POST /api/analysis/{field_id}` · `GET /api/analysis/{id}/scenarios` · `GET /api/analysis/{id}/scenarios/{A|B|C}/explanation` · `POST /api/quick-analysis` (من غير تخزين، لتجربة الواجهة).
+### Optional: Egyptian TTS model from Hugging Face
 
-## ملفات لازم تتراجع
+```bash
+cd backend
+pip install -r hf_voice_server/requirements.txt
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+pip install omnivoice
+uvicorn hf_voice_server.server:app --port 8001
+```
 
-- `backend/app/data/crops.json` و`rotation_rules.json`: **قيم مبدئية** (احتياج مائي، مدى الحرارة، أثر على التربة، قواعد التناوب) لازم تتراجع من مرجع (FAO/مراكز البحوث) قبل العرض. كل محصول معلّم `needs_expert_review`.
-- `backend/app/data/governorates.json`: إحداثيات تقريبية لمراكز المحافظات.
+Then set `HF_TTS_URL=http://127.0.0.1:8001` and `TTS_PROVIDER=hf` in `.env`. The first start downloads about 3 GB. On CPU a sentence can take minutes, so use a GPU or pre-generate fixed sentences; the Edge voice is the default for live use.
 
-## النشر
+### Configuration (`backend/.env`)
 
-- **Render**: ارفع الريبو، يقرأ `render.yaml`، وحط `OPENAI_API_KEY` في Environment. الخطة المجانية بتنام؛ افتحوا `/health` قبل العرض بدقايق. ملف SQLite ممكن يتمسح عند إعادة التشغيل (المحاصيل في JSON جوه الريبو فمفيش مشكلة).
-- **Frontend على Vercel**: HTTPS مطلوب للمايك. غيّروا `CORS_ORIGINS` لعنوان الموقع.
+| Variable | Purpose |
+|---|---|
+| `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL` | Dialogue LLM (any OpenAI-compatible endpoint) |
+| `LLM_FALLBACK_MODEL` | Backup model used on rate limits (429) |
+| `OPENAI_API_KEY` | Optional OpenAI STT/TTS |
+| `VOICE_MODE` | `auto` · `api` · `browser` |
+| `TTS_PROVIDER` | `auto` · `edge` · `openai` · `hf` · `browser` |
+| `DATABASE_URL` | Defaults to local SQLite |
+| `CORS_ORIGINS` | Allowed frontend origins |
+
+### Run the tests
+
+```bash
+cd backend
+python -m pytest -q
+```
+
+---
+
+## 🔌 API at a glance
+
+| Method | Endpoint | What it does |
+|---|---|---|
+| `POST` | `/api/voice/start` | Start a conversation, returns greeting + audio |
+| `POST` | `/api/voice/text-turn` | One dialogue turn from text (mic or buttons) |
+| `POST` | `/api/voice/turn` | One dialogue turn from recorded audio |
+| `POST` | `/api/voice/session/{id}/analyze` | Run the analysis once the 4 answers are confirmed |
+| `POST` | `/api/quick-analysis` | Rotation analysis without saving a field |
+| `POST` | `/api/fields` | Create a field profile |
+| `POST` | `/api/analysis/{field_id}` | Run and store an analysis |
+| `GET` | `/api/analysis/{id}/scenarios/{A\|B\|C}/explanation` | Benefits, risks, evidence, limitations |
+| `GET` | `/api/environment/{field_id}` | Monthly NASA climate for a field |
+| `GET` | `/api/crops`, `/api/governorates` | Knowledge base |
+| `GET` | `/health`, `/api/voice/llm-check`, `/api/voice/tts-check` | Diagnostics |
+
+---
+
+## 🗺️ Roadmap
+
+- Real **soil-test input** to sharpen the soil index.
+- More NASA sources: **SMAP** soil moisture, **GPM** rainfall, **MODIS** vegetation indices.
+- **Reviewed agronomic parameters** from FAO / Egyptian Ministry of Agriculture, replacing the current starting values.
+- A yield model once **verified yield data** is available. We deliberately don't fake one.
+- More crops and a finer regional resolution than the governorate level.
+- Offline-first mobile experience for low-connectivity farms.
+
+---
+
+## ⚠️ Disclaimer
+
+ZAR3A is a **decision-support tool**, not a replacement for an agronomist. Crop parameters and rotation rules are initial values pending expert review, and climate figures are historical averages, not forecasts for the coming season.
+
+---
+
+<div align="center">
+
+**Built so a farmer can just talk. 🌾**
+
+</div>
