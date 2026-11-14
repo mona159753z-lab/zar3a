@@ -10,7 +10,7 @@ const defaultStrategies = [
     key: 'A',
     title: 'الدورة الزراعية الحالية',
     desc: 'الاستمرار في الدورة الزراعية الحالية مع تحسينات بسيطة',
-    image: '/images/strategy-a.jpg',
+    image: '/images/Crop Rotation.jpg',
     theme: { card: 'from-amber-50 to-white border-amber-200/60', badge: 'bg-amber-600', panel: 'bg-amber-50/70' },
     stats: [
       { icon: Sprout, label: 'المحاصيل المقترحة', value: 'محاصيل الدورة الحالية', color: 'text-primary-light' },
@@ -26,7 +26,7 @@ const defaultStrategies = [
     key: 'B',
     title: 'تقليل استهلاك المياه',
     desc: 'دورة زراعية تركز على المحاصيل الأقل استهلاكاً للمياه',
-    image: '/images/strategy-b.jpg',
+    image: '/images/save water.jpg',
     theme: { card: 'from-sky-50 to-white border-sky-200/60', badge: 'bg-sky-600', panel: 'bg-sky-50/70' },
     stats: [
       { icon: Sprout, label: 'المحاصيل المقترحة', value: 'محاصيل قليلة المياه', color: 'text-primary-light' },
@@ -42,7 +42,7 @@ const defaultStrategies = [
     key: 'C',
     title: 'تحسين التربة ومقاومة التغيرات المناخية',
     desc: 'دورة زراعية تعزز خصوبة التربة وتقلل من تأثر التغيرات المناخية',
-    image: '/images/strategy-c.jpg',
+    image: '/images/impact soil.jpg',
     theme: { card: 'from-green-50 to-white border-green-200/60', badge: 'bg-primary', panel: 'bg-green-50/70' },
     stats: [
       { icon: Sprout, label: 'المحاصيل المقترحة', value: 'بقوليات + محاصيل تغطية', color: 'text-primary-light' },

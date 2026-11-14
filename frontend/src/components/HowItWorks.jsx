@@ -1,9 +1,9 @@
 import { ChevronLeft } from 'lucide-react'
 
 const steps = [
-  { img: '/images/step1.jpg', title: 'حدد أرضك على الخريطة', desc: 'وأدخل بيانات موقعها' },
-  { img: '/images/step2.jpg', title: 'أدخل بيانات التربة والمياه', desc: 'للحصول على تحليل دقيق' },
-  { img: '/images/step3.jpg', title: 'احصل على التوصيات', desc: 'لتحسين إنتاجيتك' },
+  { img: '/images/map.jpg', title: 'حدد أرضك على الخريطة', desc: 'وأدخل بيانات موقعها' },
+  { img: '/images/soil.jpg', title: 'أدخل بيانات التربة والمياه', desc: 'للحصول على تحليل دقيق' },
+  { img: '/images/analysis.jpg', title: 'احصل على التوصيات', desc: 'لتحسين إنتاجيتك' },
   { img: '/images/step4.jpg', title: 'ابدأ في تطبيق الخطة', desc: 'وحقق أفضل النتائج' },
 ]
 

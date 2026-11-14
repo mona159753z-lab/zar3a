@@ -24,7 +24,7 @@ function Bubble({ m }) {
           <User className="h-7 w-7" />
         </div>
       ) : (
-        <img src="/images/bot-avatar.png" alt="زرعة" className="h-12 w-12 shrink-0 rounded-full border-2 border-white bg-primary-light/30 object-cover shadow" />
+        <img src="/images/bot.png" alt="زرعة" className="h-12 w-12 shrink-0 rounded-full border-2 border-white bg-primary-light/30 object-cover shadow" />
       )}
       <div className={`max-w-[75%] ${isUser ? '' : ''}`}>
         <div className={`whitespace-pre-line rounded-2xl px-5 py-3 leading-relaxed ${isUser ? 'rounded-br-sm bg-primary-light/25 text-gray-900' : 'rounded-bl-sm bg-gray-100 text-gray-800'}`}>

@@ -143,7 +143,7 @@ export default function LandAnalysis() {
               <p className="mt-2 text-sm text-gray-600">{data.recommendation.reason}</p>
             </div>
             <img
-              src="/images/sprout-soil.jpg"
+              src="/images/planet.jpg"
               alt="نبتة"
               className="h-32 w-full rounded-2xl object-cover sm:w-40"
             />
@@ -178,7 +178,7 @@ export default function LandAnalysis() {
               ))}
             </ul>
             <img
-              src="/images/soil-plant.jpg"
+              src="/images/soil2.jpg"
               alt="تربة"
               className="hidden h-44 w-36 rounded-2xl object-cover shadow-md sm:block"
             />
