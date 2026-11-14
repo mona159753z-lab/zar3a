@@ -5,7 +5,7 @@ zar3a/
 ├── backend/    FastAPI (جاهز)
 ├── frontend/   حط React هنا
 ├── docs/       الوثيقة والعرض
-└── render.yaml نشر الباك على Render
+└── render.yaml نشر الباك على reliway
 ```
 
 ## تشغيل الباك (محلي)
