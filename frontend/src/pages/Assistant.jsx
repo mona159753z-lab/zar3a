@@ -66,7 +66,7 @@ export default function Assistant() {
   const audioRef = useRef(null)
   const navigate = useNavigate()
 
-  const API_BASE = "http://localhost:8000/api/voice"
+  const API_BASE = "https://zar3a-api-production.up.railway.app/api/voice"
 
   const playAudio = (base64, mime, fallbackText, speakInBrowser) => {
     if (base64 && mime) {
