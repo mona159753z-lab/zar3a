@@ -110,7 +110,7 @@ export default function Navbar() {
       {/* قايمة الموبايل */}
       <div
         className={`mx-auto mt-2 max-w-7xl overflow-hidden rounded-3xl bg-cream/95 shadow-xl backdrop-blur-xl transition-all duration-300 lg:hidden ${
-          open ? 'max-h-96 border border-primary/10 opacity-100' : 'max-h-0 opacity-0'
+          open ? 'max-h-[80vh] overflow-y-auto border border-primary/10 opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
         <ul className="flex flex-col p-3">

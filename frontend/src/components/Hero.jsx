@@ -11,12 +11,12 @@ export default function Hero() {
       <div className="absolute inset-0 bg-linear-to-r from-[#1b4d24] via-[#1b4d24]/70 to-transparent" />
 
       {/* المحتوى (على الشمال زي التصميم) */}
-      <div className="relative mr-auto flex w-full max-w-2xl px-6 pb-28 pt-44 md:px-16" dir="rtl">
+      <div className="relative mr-auto flex w-full max-w-2xl px-6 pb-16 pt-36 sm:pb-28 sm:pt-44 md:px-16" dir="rtl">
         <div className="max-w-xl text-white">
           <img
   src="/images/logo2.png"
   alt="ZAR3A"
-  className="mb-6 block h-25 w-auto -translate-x-60 md:h-32"
+  className="mb-6 block h-25 w-auto md:-translate-x-60 md:h-32"
 />
 
           <h1 className="mb-5 text-3xl font-bold md:text-3xl">

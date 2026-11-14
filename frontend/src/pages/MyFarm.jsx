@@ -57,9 +57,9 @@ export default function MyFarm() {
         style={{ backgroundImage: "url('/images/farm-banner.jpg')" }}
       >
         <div className="absolute inset-0 bg-linear-to-l from-[#1b4d24]/95 via-[#1b4d24]/60 to-transparent" />
-        <div className="relative px-8 py-10 text-white md:py-12">
+        <div className="relative px-5 py-8 text-white sm:px-8 md:py-12">
           <div className="flex items-center gap-3">
-            <h1 className="text-4xl font-extrabold md:text-5xl">مزرعتي</h1>
+            <h1 className="text-3xl font-extrabold sm:text-4xl md:text-5xl">مزرعتي</h1>
             <Sprout className="h-10 w-10 text-primary-light" />
           </div>
           <p className="mt-3 text-lg text-white/90">كل معلومات أرضك ومحاصيلك في مكان واحد</p>
@@ -70,13 +70,13 @@ export default function MyFarm() {
       {/* كروت الإحصائيات */}
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {stats.map(({ icon: Icon, label, value, sub }) => (
-          <Card key={label} className="flex items-center gap-4">
+          <Card key={label} className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-4">
             <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-primary-light/15">
               <Icon className="h-8 w-8 text-primary" />
             </div>
             <div>
               <p className="text-sm text-gray-500">{label}</p>
-              <p className="text-2xl font-extrabold text-gray-900">{value}</p>
+              <p className="text-xl font-extrabold text-gray-900 sm:text-2xl">{value}</p>
               {sub && <p className="text-xs text-gray-400">{sub}</p>}
             </div>
           </Card>
